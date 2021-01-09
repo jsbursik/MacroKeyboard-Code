@@ -11,7 +11,7 @@
 #include <Adafruit_I2CDevice.h>
 
 // Setup OLED
-Adafruit_SSD1306 display(128, 32, &Wire, 4);
+Adafruit_SSD1306 display(128, 32, &Wire, 13);
 
 // Mode Button Variables
 int modePushCounter = 0;
@@ -41,7 +41,7 @@ void writeToDisplay(String toWrite, int size);
 void setup() {
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   writeToDisplay("Macro Keyboard v2", 2);
-  delay(10000);
+  delay(3000);
 
   pinMode(ModeButton, INPUT_PULLUP);
   Keyboard.begin();
@@ -67,7 +67,7 @@ void loop() {
         case 'A': Keyboard.println("Mode 0, key A"); break;
         case 'B': Keyboard.println("Mode 0, key B"); break;
       }
-      delay(100); Keyboard.releaseAll();
+      delay(50); Keyboard.releaseAll();
       break;
     case 1:
       writeToDisplay("Mode 1", 2);
@@ -85,7 +85,7 @@ void loop() {
         case 'A': Keyboard.println("Mode 1, key A"); break;
         case 'B': Keyboard.println("Mode 1, key B"); break;
       }
-      delay(100); Keyboard.releaseAll();
+      delay(50); Keyboard.releaseAll();
       break;
     case 2:
       writeToDisplay("Mode 2", 2);
@@ -103,7 +103,7 @@ void loop() {
         case 'A': Keyboard.println("Mode 2, key A"); break;
         case 'B': Keyboard.println("Mode 2, key B"); break;
       }
-      delay(100); Keyboard.releaseAll();
+      delay(50); Keyboard.releaseAll();
       break;
     case 3:
       writeToDisplay("Mode 3", 2);
@@ -121,7 +121,7 @@ void loop() {
         case 'A': Keyboard.println("Mode 3, key A"); break;
         case 'B': Keyboard.println("Mode 3, key B"); break;
       }
-      delay(100); Keyboard.releaseAll();
+      delay(50); Keyboard.releaseAll();
       break;
   }
   delay(1);
