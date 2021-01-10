@@ -4,6 +4,11 @@
 #include <Keyboard.h>
 #include <Keypad.h>
 
+// Keyboard Definitions
+#define CTRL  KEY_LEFT_CTRL
+#define ALT   KEY_LEFT_ALT
+#define SHIFT KEY_LEFT_SHIFT
+
 // Include stuff for display
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -40,11 +45,14 @@ void writeToDisplay(String toWrite, int size);
 
 void setup() {
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  writeToDisplay("Macro Keyboard v2", 2);
+  writeToDisplay("Macro Keyboard v2", 1);
   delay(3000);
 
   pinMode(ModeButton, INPUT_PULLUP);
   Keyboard.begin();
+
+  // Turn off the TX LED.
+  pinMode(LED_BUILTIN_TX, INPUT);
 }
 
 void loop() {
@@ -52,46 +60,132 @@ void loop() {
   checkModeButton();
   switch(modePushCounter){
     case 0:
-      writeToDisplay("Mode 0", 2);
+      writeToDisplay("General", 2);
       switch(key){
-        case '1': Keyboard.println("Mode 0, key 1"); break;
-        case '2': Keyboard.println("Mode 0, key 2"); break;
-        case '3': Keyboard.println("Mode 0, key 3"); break;
-        case '4': Keyboard.println("Mode 0, key 4"); break;
-        case '5': Keyboard.println("Mode 0, key 5"); break;
-        case '6': Keyboard.println("Mode 0, key 6"); break;
-        case '7': Keyboard.println("Mode 0, key 7"); break;
-        case '8': Keyboard.println("Mode 0, key 8"); break;
-        case '9': Keyboard.println("Mode 0, key 9"); break;
-        case '0': Keyboard.println("Mode 0, key 0"); break;
-        case 'A': Keyboard.println("Mode 0, key A"); break;
-        case 'B': Keyboard.println("Mode 0, key B"); break;
+        case '1': 
+          // Discord Mute Microphone
+          Keyboard.press(CTRL);
+          Keyboard.press(ALT);
+          Keyboard.print('1');
+          break;
+        case '2': 
+          // Discord Deafen
+          Keyboard.press(CTRL);
+          Keyboard.press(ALT);
+          Keyboard.print('2');
+          break;
+        case '3': 
+          // Discord Screen Share
+          Keyboard.press(CTRL);
+          Keyboard.press(ALT);
+          Keyboard.print('3');
+          break;
+        case '4': 
+          // Open/Switch to Discord
+          Keyboard.press(KEY_LEFT_GUI);
+          Keyboard.print('3');
+          break;
+        case '5': 
+          // 
+          break;
+        case '6': 
+          // 
+          break;
+        case '7': 
+          // 
+          break;
+        case '8': 
+          // 
+          break;
+        case '9': 
+          // 
+          break;
+        case '0': 
+          // 
+          break;
+        case 'A': 
+          // 
+          break;
+        case 'B': 
+          // 
+          break;
       }
       delay(50); Keyboard.releaseAll();
       break;
     case 1:
-      writeToDisplay("Mode 1", 2);
+      writeToDisplay("VSCode", 2);
       switch(key){
-        case '1': Keyboard.println("Mode 1, key 1"); break;
-        case '2': Keyboard.println("Mode 1, key 2"); break;
-        case '3': Keyboard.println("Mode 1, key 3"); break;
-        case '4': Keyboard.println("Mode 1, key 4"); break;
-        case '5': Keyboard.println("Mode 1, key 5"); break;
-        case '6': Keyboard.println("Mode 1, key 6"); break;
-        case '7': Keyboard.println("Mode 1, key 7"); break;
-        case '8': Keyboard.println("Mode 1, key 8"); break;
-        case '9': Keyboard.println("Mode 1, key 9"); break;
-        case '0': Keyboard.println("Mode 1, key 0"); break;
-        case 'A': Keyboard.println("Mode 1, key A"); break;
-        case 'B': Keyboard.println("Mode 1, key B"); break;
+        case '1':
+          // Open Command Panel
+          Keyboard.press(CTRL); 
+          Keyboard.press(SHIFT);
+          Keyboard.print('p');
+          break;
+        case '2': 
+          // Open Terminal
+          Keyboard.press(CTRL);
+          Keyboard.print('`'); 
+          break;
+        case '3': 
+          // Toggle Comment line
+          Keyboard.press(CTRL);
+          Keyboard.print('/'); 
+          break;
+        case '4':
+          // Toggle Comment Block 
+          Keyboard.press(SHIFT);
+          Keyboard.press(ALT);
+          Keyboard.print('a');
+          break;
+        case '5': 
+          // Split editor Vertical
+          Keyboard.press(CTRL);
+          Keyboard.print('\\'); 
+          break;
+        case '6': 
+          // Split editor Orthogonal
+          Keyboard.press(CTRL);
+          Keyboard.print('k');
+          Keyboard.print('\\'); 
+          break;
+        case '7':
+          // Fold all regions
+          Keyboard.press(CTRL);
+          Keyboard.print('k');
+          Keyboard.print('0');
+          break;
+        case '8': 
+          // Unfold all regions
+          Keyboard.press(CTRL);
+          Keyboard.print('k');
+          Keyboard.print('j');
+          break;
+        case '9':
+          // Go to beginning of line 
+          Keyboard.press(KEY_HOME);
+          break;
+        case '0': 
+          // Go to ending of line
+          Keyboard.press(KEY_END);
+          break;
+        case 'A': 
+          // Go to beginning of file
+          Keyboard.press(CTRL);
+          Keyboard.press(KEY_HOME);
+          break;
+        case 'B': 
+          // Go to ending of file
+          Keyboard.press(CTRL);
+          Keyboard.press(KEY_END);
+          break;
       }
       delay(50); Keyboard.releaseAll();
       break;
     case 2:
       writeToDisplay("Mode 2", 2);
       switch(key){
-        case '2': Keyboard.println("Mode 2, key 2"); break;
-        case '1': Keyboard.println("Mode 2, key 1"); break;
+        case '1': Keyboard.println("Mode 2, key 2"); break;
+        case '2': Keyboard.println("Mode 2, key 1"); break;
         case '3': Keyboard.println("Mode 2, key 3"); break;
         case '4': Keyboard.println("Mode 2, key 4"); break;
         case '5': Keyboard.println("Mode 2, key 5"); break;
@@ -129,7 +223,7 @@ void loop() {
 
 void writeToDisplay(String toWrite, int size){
   display.clearDisplay();
-  display.setCursor(0,0);
+  display.setCursor(0,12);
   display.setTextSize(size);
   display.setTextColor(SSD1306_WHITE);
   display.print(toWrite);
