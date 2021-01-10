@@ -51,9 +51,7 @@ void scrollText(String toWrite, int size);
 void setup() {
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.setTextWrap(false);
-  x = display.width();
-  writeToDisplay("Powering on...", 2);
-  delay(3000);
+  x = display.width(); // Setup the scrolling text whenever it is used (Draw it offscreen)
   
   pinMode(ModeButton, INPUT_PULLUP);
   Keyboard.begin();
@@ -289,22 +287,24 @@ void writeToDisplay(String toWrite, int size){
 }
 
 void scrollText(String toWrite, int size){
-  #define SPACER  2 * size * 6;
+  #define SPACER  2 * size * 6; // 2 spaces * the Text Size * 6 Pixels for a normal character
   if(toWrite != textBuffer){
-    x = display.width();
-    x2 = x + (toWrite.length() * size * 6) + SPACER;
+    x = display.width(); // On a mode switch, always bring the text in from the right
+    x2 = x + (toWrite.length() * size * 6) + SPACER; // Add a copy of the text to the right of the original
   }
   textBuffer = toWrite;
   display.clearDisplay();
   display.setTextSize(size);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(x, 0);
+  display.setCursor(x, 0); // Draw the first string
   display.print(toWrite);
-  display.setCursor(x2, 0);
+  display.setCursor(x2, 0); // Draw the second string
   display.print(toWrite);
   display.display();
   minX = -6 * size * toWrite.length();
+  // If the first string goes completely off the left, draw it off screen at the same distance the second string was
   if(--x < minX) x = x2 + (toWrite.length() * size * 6) + SPACER;
+  // If the second string goes off the left, draw it off screen at the same distance the first string was
   if(--x2 < minX) x2 = x + (toWrite.length() * size * 6) + SPACER;
 }
 
