@@ -302,7 +302,7 @@ void scrollText(String toWrite, int size){
   display.print(toWrite);
   display.display();
   minX = -6 * size * toWrite.length();
-  // If the first string goes completely off the left, draw it off screen at the same distance the second string was
+  // If the first string goes off the left, draw it off screen at the same distance the second string was
   if(--x < minX) x = x2 + (toWrite.length() * size * 6) + SPACER;
   // If the second string goes off the left, draw it off screen at the same distance the first string was
   if(--x2 < minX) x2 = x + (toWrite.length() * size * 6) + SPACER;
