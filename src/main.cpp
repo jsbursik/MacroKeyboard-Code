@@ -1,13 +1,34 @@
 #include <Arduino.h>
 
+// Include for the LED's
+#include <Adafruit_NeoPixel.h>
+
+#define PIN         A2
+#define NUMPIXELS   13
+
+#define GENERAL     150, 150, 150
+#define PURPLE      150, 0, 150
+#define GOLD        168, 67, 0
+#define ORANGE      168, 47, 0
+#define BLUE        0, 92, 168
+#define GREEN       0, 168, 0
+#define RED         168, 0, 0
+
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+int colorUpdate = 0; // Flag for updating colors
+#ifdef __AVR__
+#include <avr/power.h>
+#endif
+
 // Include the necessary keyboard stuff
 #include <Keyboard.h>
 #include <Keypad.h>
 
-// Keyboard Definitions
+// Simplifying key names
 #define CTRL  KEY_LEFT_CTRL
 #define ALT   KEY_LEFT_ALT
 #define SHIFT KEY_LEFT_SHIFT
+#define WIN   KEY_LEFT_GUI
 
 // Include stuff for display
 #include <Wire.h>
@@ -43,26 +64,37 @@ byte rowPins[ROWS] = {4,5,A3};
 byte colPins[COLS] = {6,7,8,9};
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
+// Is discord muted?
+bool discMute = false;
+bool discDeafen = false;
+
 // Function Declarations
 void checkModeButton();
 void writeToDisplay(String toWrite, int size);
 void scrollText(String toWrite, int size);
+void setPixelMode();
+void setAllPixels(int r, int g, int b);
+void setPixelColor(int pixel, int r, int g, int b);
+void toggleMute();
+void toggleDeafen();
 
 void setup() {
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.setTextWrap(false);
-  x = display.width(); // Setup the scrolling text whenever it is used (Draw it offscreen)
+  x = 0; // Setup the scrolling text whenever it is used (Draw it offscreen)
   
   pinMode(ModeButton, INPUT_PULLUP);
   Keyboard.begin();
 
   // Turn off the TX LED.
   pinMode(LED_BUILTIN_TX, INPUT);
+  pixels.begin();
 }
 
 void loop() {
   char key = keypad.getKey();
   checkModeButton();
+  setPixelMode();
   switch(modePushCounter){
     case 0:
       scrollText("General", 4);
@@ -72,12 +104,14 @@ void loop() {
           Keyboard.press(CTRL);
           Keyboard.press(ALT);
           Keyboard.print('1');
+          toggleMute();
           break;
         case '2': 
           // Discord Deafen
           Keyboard.press(CTRL);
           Keyboard.press(ALT);
           Keyboard.print('2');
+          toggleDeafen();
           break;
         case '3': 
           // Discord Screen Share
@@ -87,14 +121,20 @@ void loop() {
           break;
         case '4': 
           // Open/Switch to Discord
-          Keyboard.press(KEY_LEFT_GUI);
+          Keyboard.press(WIN);
           Keyboard.print('3');
           break;
         case '5': 
-          // 
+          // Open Spotify
+          Keyboard.press(WIN);
+          Keyboard.print('5');
           break;
         case '6': 
-          // 
+          // Open VSCode
+          Keyboard.press(WIN);
+          Keyboard.print('6');
+          modePushCounter = 2;
+          colorUpdate = 0;
           break;
         case '7': 
           // 
@@ -112,12 +152,81 @@ void loop() {
           // 
           break;
         case 'B': 
-          // 
+          // Focus/Unfocus Desktop
+          Keyboard.press(WIN);
+          Keyboard.print('d');
           break;
       }
       delay(10); Keyboard.releaseAll();
       break;
     case 1:
+      scrollText("World of Warcraft", 4);
+      switch(key){
+        case '1': 
+          Keyboard.press(CTRL);
+          Keyboard.press(SHIFT);
+          Keyboard.print('1');
+          break;
+        case '2': 
+          Keyboard.press(CTRL);
+          Keyboard.press(SHIFT);
+          Keyboard.print('2');
+          break;
+        case '3': 
+          Keyboard.press(CTRL);
+          Keyboard.press(SHIFT);
+          Keyboard.print('3');
+          break;
+        case '4': 
+          Keyboard.press(CTRL);
+          Keyboard.press(SHIFT);
+          Keyboard.print('4');
+          break;
+        case '5': 
+          Keyboard.press(CTRL);
+          Keyboard.press(SHIFT);
+          Keyboard.print('5');
+          break;
+        case '6': 
+          Keyboard.press(CTRL);
+          Keyboard.press(SHIFT);
+          Keyboard.print('6');
+          break;
+        case '7': 
+          Keyboard.press(CTRL);
+          Keyboard.press(SHIFT);
+          Keyboard.print('7');
+          break;
+        case '8': 
+          Keyboard.press(CTRL);
+          Keyboard.press(SHIFT);
+          Keyboard.print('8');
+          break;
+        case '9': 
+          Keyboard.press(CTRL);
+          Keyboard.press(SHIFT);
+          Keyboard.print('8');
+          break;
+        case '0': 
+          Keyboard.press(CTRL);
+          Keyboard.press(SHIFT);
+          Keyboard.print('0');
+          break;
+        case 'A': 
+          Keyboard.press(CTRL);
+          Keyboard.press(SHIFT);
+          Keyboard.print('-');
+          break;
+        case 'B': 
+          Keyboard.press(CTRL);
+          Keyboard.press(SHIFT);
+          Keyboard.print('=');
+          break;
+      }
+      colorUpdate = 0;
+      delay(10); Keyboard.releaseAll();
+      break;
+    case 2:
       scrollText("VSCode", 4);
       switch(key){
         case '1':
@@ -186,113 +295,50 @@ void loop() {
       }
       delay(10); Keyboard.releaseAll();
       break;
-    case 2:
-      scrollText("World of Warcraft", 4);
-      switch(key){
-        case '1': 
-          Keyboard.press(CTRL);
-          Keyboard.press(SHIFT);
-          Keyboard.print('1');
-          break;
-        case '2': 
-          Keyboard.press(CTRL);
-          Keyboard.press(SHIFT);
-          Keyboard.print('2');
-          break;
-        case '3': 
-          Keyboard.press(CTRL);
-          Keyboard.press(SHIFT);
-          Keyboard.print('3');
-          break;
-        case '4': 
-          Keyboard.press(CTRL);
-          Keyboard.press(SHIFT);
-          Keyboard.print('4');
-          break;
-        case '5': 
-          Keyboard.press(CTRL);
-          Keyboard.press(SHIFT);
-          Keyboard.print('5');
-          break;
-        case '6': 
-          Keyboard.press(CTRL);
-          Keyboard.press(SHIFT);
-          Keyboard.print('6');
-          break;
-        case '7': 
-          Keyboard.press(CTRL);
-          Keyboard.press(SHIFT);
-          Keyboard.print('7');
-          break;
-        case '8': 
-          Keyboard.press(CTRL);
-          Keyboard.press(SHIFT);
-          Keyboard.print('8');
-          break;
-        case '9': 
-          Keyboard.press(CTRL);
-          Keyboard.press(SHIFT);
-          Keyboard.print('8');
-          break;
-        case '0': 
-          Keyboard.press(CTRL);
-          Keyboard.press(SHIFT);
-          Keyboard.print('0');
-          break;
-        case 'A': 
-          Keyboard.press(CTRL);
-          Keyboard.press(SHIFT);
-          Keyboard.print('-');
-          break;
-        case 'B': 
-          Keyboard.press(CTRL);
-          Keyboard.press(SHIFT);
-          Keyboard.print('=');
-          break;
-      }
-      delay(10); Keyboard.releaseAll();
-      break;
     case 3:
       scrollText("Mode 3", 4);
       switch(key){
-        case '1': Keyboard.println("Mode 3, key 1"); break;
-        case '2': Keyboard.println("Mode 3, key 2"); break;
-        case '3': Keyboard.println("Mode 3, key 3"); break;
-        case '4': Keyboard.println("Mode 3, key 4"); break;
-        case '5': Keyboard.println("Mode 3, key 5"); break;
-        case '6': Keyboard.println("Mode 3, key 6"); break;
-        case '7': Keyboard.println("Mode 3, key 7"); break;
-        case '8': Keyboard.println("Mode 3, key 8"); break;
-        case '9': Keyboard.println("Mode 3, key 9"); break;
-        case '0': Keyboard.println("Mode 3, key 0"); break;
-        case 'A': Keyboard.println("Mode 3, key A"); break;
-        case 'B': Keyboard.println("Mode 3, key B"); break;
+        case '1':
+          break;
+        case '2':
+          break;
+        case '3':
+          break;
+        case '4':
+          break;
+        case '5':
+          break;
+        case '6':
+          break;
+        case '7':
+          break;
+        case '8':
+          break;
+        case '9':
+          break;
+        case '0':
+          break;
+        case 'A':
+          break;
+        case 'B':
+          break;
       }
       delay(10); Keyboard.releaseAll();
       break;
+    
   }
   delay(1);
 }
 
-void writeToDisplay(String toWrite, int size){
-  if(toWrite != textBuffer){
-    display.clearDisplay();
-    display.setCursor(0,12);
-    display.setTextSize(size);
-    display.setTextColor(SSD1306_WHITE);
-    display.print(toWrite);
-    display.display();
-  }
-  textBuffer = toWrite;
-}
-
 void scrollText(String toWrite, int size){
   #define SPACER  2 * size * 6; // 2 spaces * the Text Size * 6 Pixels for a normal character
-  if(toWrite != textBuffer){
-    x = display.width(); // On a mode switch, always bring the text in from the right
+
+  if(toWrite != textBuffer){ // This makes sure the scroll doesn't get reset for every call in loop()
+    x = 0;
     x2 = x + (toWrite.length() * size * 6) + SPACER; // Add a copy of the text to the right of the original
   }
   textBuffer = toWrite;
+
   display.clearDisplay();
   display.setTextSize(size);
   display.setTextColor(SSD1306_WHITE);
@@ -301,6 +347,7 @@ void scrollText(String toWrite, int size){
   display.setCursor(x2, 0); // Draw the second string
   display.print(toWrite);
   display.display();
+
   minX = -6 * size * toWrite.length();
   // If the first string goes off the left, draw it off screen at the same distance the second string was
   if(--x < minX) x = x2 + (toWrite.length() * size * 6) + SPACER;
@@ -313,6 +360,7 @@ void checkModeButton(){
   if(buttonState != lastButtonState){
     if(buttonState == LOW){
       modePushCounter++;
+      colorUpdate = 0;
     }
     delay(50);
   }
@@ -320,4 +368,59 @@ void checkModeButton(){
   if (modePushCounter > 3){
     modePushCounter = 0;
   }
+}
+
+void setPixelMode(){
+  if(colorUpdate == 0){
+    switch(modePushCounter){
+      case 0:
+        // General
+        setAllPixels(GENERAL);
+        discMute ? setPixelColor(1, RED) : setPixelColor(1, PURPLE);
+        discDeafen ? setPixelColor(2, RED) : setPixelColor(2, PURPLE);
+        setPixelColor(3, PURPLE);
+        setPixelColor(4, PURPLE);
+        setPixelColor(5, GREEN);
+        setPixelColor(6, BLUE);
+        setPixelColor(12, RED);
+        pixels.show();
+        break;
+      case 1:
+        // World of Warcraft
+        setAllPixels(GOLD);
+        pixels.show();
+        break;
+      case 2:
+        // Unused
+        setAllPixels(BLUE);
+        pixels.show();
+        break;
+      case 3:
+        // VSCode
+        setAllPixels(GENERAL);
+        pixels.show();
+        break;
+    }
+    colorUpdate = 1;
+  }
+}
+
+void setAllPixels(int r, int g, int b){
+  for(int i = 0; i < 14; i++){
+    setPixelColor(i, r, g, b);
+  }
+}
+
+void setPixelColor(int pixel, int r, int g, int b){
+  pixels.setPixelColor(pixel, pixels.Color(r, g, b));
+}
+
+void toggleMute(){
+  discMute ? discMute = false : discMute = true;
+  colorUpdate = 0;
+}
+
+void toggleDeafen(){
+  discDeafen ? discDeafen = false : discDeafen = true;
+  colorUpdate = 0;
 }
