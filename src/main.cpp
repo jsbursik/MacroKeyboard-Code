@@ -7,7 +7,7 @@
 #define NUMPIXELS 13
 
 #define GENERAL 150, 150, 150
-#define DIM 20, 20, 20
+#define DIM 5, 5, 5
 #define PURPLE 150, 0, 150
 #define GOLD 168, 67, 0
 #define ORANGE 168, 47, 0
