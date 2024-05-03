@@ -179,8 +179,7 @@ void loop()
       break;
     case '6':
       // Add system power
-      Keyboard.press(ALT);
-      Keyboard.print('w');
+      Keyboard.press(KEY_UP_ARROW);
       break;
     case '7':
       //
@@ -193,18 +192,15 @@ void loop()
       break;
     case '9':
       // System to the left
-      Keyboard.press(ALT);
-      Keyboard.print('a');
+      Keyboard.press(KEY_LEFT_ARROW);
       break;
     case '0':
       // Decrease system power
-      Keyboard.press(ALT);
-      Keyboard.print('s');
+      Keyboard.press(KEY_DOWN_ARROW);
       break;
     case 'A':
       // System to the right
-      Keyboard.press(ALT);
-      Keyboard.print('d');
+      Keyboard.press(KEY_RIGHT_ARROW);
       break;
     case 'B':
       // Focus/Unfocus Desktop
